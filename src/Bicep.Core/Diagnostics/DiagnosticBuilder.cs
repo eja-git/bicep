@@ -1108,6 +1108,41 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
+
+            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, IEnumerable<string> allowedSchemes) => new(
+                TextSpan,
+                "BCP189",
+                $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a local path to a Bicep file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}");
+
+            public ErrorDiagnostic InvalidNuGetPackageReference(string badRef) => new(
+                TextSpan,
+                "BCP190",
+                $"The specified NuGet package reference \"{badRef}\" is not valid. Specify a reference in the format of \"nuget:<package>@<version>\".");
+
+            public ErrorDiagnostic InvalidOciArtifactReference(string badRef) => new(
+                TextSpan,
+                "BCP191",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"oci:<artifact uri>:<tag>\".");
+
+            // TODO: This error is context sensitive:
+            // - In CLI, it's permanent and only likely to occur with bicep build --no-init.
+            // - In VS code, it's transient until the background init finishes.
+            //
+            // Should it be split into two separate errors instead?
+            public ErrorDiagnostic ModuleRequiresRestore(string moduleRef) => new(
+                TextSpan,
+                "BCP192",
+                $"The module with reference \"{moduleRef}\" has not been restored.");
+
+            public ErrorDiagnostic ModuleRestoreFailed(string moduleRef) => new(
+                TextSpan,
+                "BCP193",
+                $"Unable to restore the module with reference \"{moduleRef}\".");
+
+            public ErrorDiagnostic ModuleRestoreFailedWithMessage(string moduleRef, string message) => new(
+                TextSpan,
+                "BCP194",
+                $"Unable to restore the module with reference \"{moduleRef}\": {message}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -16,6 +16,9 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
 using Bicep.Decompiler;
+using Bicep.Core.Modules;
+using Bicep.Core.Registry;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Wasm
 {
@@ -147,8 +150,8 @@ namespace Bicep.Wasm
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents);
             workspace.UpsertSourceFile(sourceFile);
 
-            var fileResolver = new FileResolver();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, fileUri);
+            FileResolver fileResolver = new FileResolver();
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, new ModuleRegistryDispatcher(fileResolver), workspace, fileUri);
 
             return new Compilation(resourceTypeProvider, sourceFileGrouping);
         }

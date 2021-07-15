@@ -4,7 +4,9 @@
 using Bicep.Cli.Logging;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
@@ -15,7 +17,8 @@ namespace Bicep.Cli.Services
     public class CompilationService
     {
         private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly FileResolver fileResolver;
+        private readonly IFileResolver fileResolver;
+        private readonly IModuleRegistryDispatcher dispatcher;
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
 
@@ -23,6 +26,7 @@ namespace Bicep.Cli.Services
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = new FileResolver();
+            this.dispatcher = new ModuleRegistryDispatcher(this.fileResolver);
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
         }
@@ -31,14 +35,19 @@ namespace Bicep.Cli.Services
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.workspace, inputUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.dispatcher, this.workspace, inputUri);
+            if (dispatcher.RestoreModules(sourceFileGrouping.ModulesToRestore))
+            {
+                // modules had to be restored - recompile
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, new Workspace(), sourceFileGrouping);
+            }
 
             var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping);
 
             LogDiagnostics(compilation);
 
             return compilation;
-        }  
+        }
 
         public (Uri, ImmutableDictionary<Uri, string>) Decompile(string inputPath, string outputPath)
         {

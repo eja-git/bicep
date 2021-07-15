@@ -27,7 +27,7 @@ namespace Bicep.Cli
         }
 
         public static int Main(string[] args)
-        {            
+        {
             string profilePath = MulticoreJIT.GetMulticoreJITPath();
             ProfileOptimization.SetProfileRoot(profilePath);
             ProfileOptimization.StartProfile("bicep.profile");
