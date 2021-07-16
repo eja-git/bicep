@@ -18,7 +18,7 @@ namespace Bicep.Core.Modules
         private static readonly IEqualityComparer<string> TagComparer = StringComparer.Ordinal;
 
         public OciArtifactModuleReference(string registry, string repository, string tag)
-             : base("oci")
+             : base(ModuleReferenceSchemes.Oci)
         {
             this.Registry = registry;
             this.Repository = repository;

@@ -19,7 +19,7 @@ namespace Bicep.Core.Registry
             this.fileResolver = fileResolver;
         }
 
-        public string Scheme => string.Empty;
+        public string Scheme => ModuleReferenceSchemes.Local;
 
         public ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => LocalModuleReference.TryParse(reference, out failureBuilder);
 
