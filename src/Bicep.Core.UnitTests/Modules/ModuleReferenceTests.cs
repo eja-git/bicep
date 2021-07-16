@@ -19,6 +19,9 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetModuleRefSubClasses), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet))]
         public void ModuleRefSubClassesShouldOverrideEqualsAndHashCode(Type type)
         {
+            /* 
+             * The module reference subclasses must implement Equals() and GetHashCode() so reference deduping works correctly.
+             */
             static MethodInfo? GetDeclaredMethod(Type type, string name) => type.GetMethod(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.DeclaredOnly);
 
             var equals = GetDeclaredMethod(type, nameof(object.Equals));

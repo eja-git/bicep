@@ -7,8 +7,33 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Modules
 {
-    class LocalModuleReferenceTests
+    [TestClass]
+    public class LocalModuleReferenceTests
     {
+        [DataRow("test.bicep","test.bicep")]
+        [DataRow("../bar/foo.bicep", "../bar/foo.bicep")]
+        [DataRow("./t.json", "./t.json")]
+        [DataTestMethod]
+        public void SameModulePathsShouldBeEqual(string package1, string package2)
+        {
+            var (first, second) = ParsePair(package1, package2);
+
+            first.Equals(second).Should().BeTrue();
+            first.GetHashCode().Should().Be(second.GetHashCode());
+        }
+
+        [DataRow("test.bicep", "Test.bicep")]
+        [DataRow("../bar/foo.bicep", "foo.bicep")]
+        [DataRow("./t.json", "./t.JSON")]
+        [DataTestMethod]
+        public void DifferentPathsShouldNotBeEqual(string package1, string package2)
+        {
+            var (first, second) = ParsePair(package1, package2);
+
+            first.Equals(second).Should().BeFalse();
+            first.GetHashCode().Should().NotBe(second.GetHashCode());
+        }
+
         [DataRow("./test.bicep")]
         [DataRow("foo/bar/test.bicep")]
         [DataRow("../bar/test.bicep")]
