@@ -33,8 +33,8 @@ namespace Bicep.Core.Samples
         {
             outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
             fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
-            FileResolver fileResolver = BicepTestConstants.FileResolver;
-            var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(fileResolver, new ModuleRegistryDispatcher(fileResolver), new Workspace(), fileUri);
+            var dispatcher = new ModuleRegistryDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
+            var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), fileUri);
 
             return new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
         }

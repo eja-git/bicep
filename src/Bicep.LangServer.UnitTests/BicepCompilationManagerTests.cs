@@ -5,6 +5,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -303,7 +304,8 @@ namespace Bicep.LangServer.UnitTests
 
             IFileResolver fileResolver = CreateEmptyFileResolver();
             var mockScheduler = CreateMockScheduler();
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleRegistryDispatcher(fileResolver)), new Workspace(), mockScheduler.Object);
+            var dispatcher = new ModuleRegistryDispatcher(new DefaultModuleRegistryProvider(fileResolver));
+            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, dispatcher), new Workspace(), mockScheduler.Object);
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -321,7 +323,8 @@ namespace Bicep.LangServer.UnitTests
 
             IFileResolver fileResolver = CreateEmptyFileResolver();
             var mockScheduler = CreateMockScheduler();
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleRegistryDispatcher(fileResolver)), new Workspace(), mockScheduler.Object);
+            var dispatcher = new ModuleRegistryDispatcher(new DefaultModuleRegistryProvider(fileResolver));
+            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, dispatcher), new Workspace(), mockScheduler.Object);
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -508,7 +511,8 @@ namespace Bicep.LangServer.UnitTests
         private static ICompilationProvider CreateEmptyCompilationProvider()
         {
             InMemoryFileResolver fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>());
-            return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleRegistryDispatcher(fileResolver));
+            var dispatcher = new ModuleRegistryDispatcher(new DefaultModuleRegistryProvider(fileResolver));
+            return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, dispatcher);
         }
 
         private static Mock<IModuleRestoreScheduler> CreateMockScheduler()

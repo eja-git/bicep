@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -26,7 +25,7 @@ namespace Bicep.Core.UnitTests.Utils
             var sourceFiles = fileContentsByUri.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
             workspace.UpsertSourceFiles(sourceFiles);
 
-            return SourceFileGroupingBuilder.Build(fileResolver, new ModuleRegistryDispatcher(fileResolver), workspace, entryFileUri);
+            return SourceFileGroupingBuilder.Build(fileResolver, new ModuleRegistryDispatcher(new DefaultModuleRegistryProvider(fileResolver)), workspace, entryFileUri);
         }
     }
 }

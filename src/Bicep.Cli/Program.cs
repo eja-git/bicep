@@ -8,6 +8,7 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,7 +102,8 @@ namespace Bicep.Cli
                 // Handles the context of this invocation
                 .AddSingleton(invocationContext)
 
-                // Adds the various services that
+                // Adds the various services required by the commands
+                .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
                 .AddSingleton<CompilationService>()

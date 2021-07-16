@@ -1112,7 +1112,9 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, IEnumerable<string> allowedSchemes) => new(
                 TextSpan,
                 "BCP189",
-                $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a local path to a Bicep file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}");
+                allowedSchemes.Any()
+                    ? $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a local path to a Bicep file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}"
+                    : "Module references are not supported in this context.");
 
             public ErrorDiagnostic InvalidNuGetPackageReference(string badRef) => new(
                 TextSpan,

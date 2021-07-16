@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
 using System;
@@ -22,9 +20,9 @@ namespace Bicep.Core.Registry
 
         private readonly ConditionalWeakTable<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> restoreStatuses;
 
-        public ModuleRegistryDispatcher(IFileResolver fileResolver)
+        public ModuleRegistryDispatcher(IModuleRegistryProvider registryProvider)
         {
-            (this.schemes, this.referenceTypes) = Initialize(fileResolver);
+            (this.schemes, this.referenceTypes) = Initialize(registryProvider);
             this.AvailableSchemes = this.schemes.Keys.OrderBy(s => s).ToImmutableArray();
             this.restoreStatuses = new ConditionalWeakTable<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
         }
@@ -145,7 +143,7 @@ namespace Bicep.Core.Registry
                 case 2:
                     var scheme = parts[0];
 
-                    if (schemes.TryGetValue(scheme, out var registry))
+                    if (!string.IsNullOrEmpty(scheme) && schemes.TryGetValue(scheme, out var registry))
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
@@ -176,19 +174,16 @@ namespace Bicep.Core.Registry
         }
 
         // TODO: Once we have some sort of dependency injection in the CLI, this could be simplified
-        private static (ImmutableDictionary<string, IModuleRegistry>, ImmutableDictionary<Type, IModuleRegistry>) Initialize(IFileResolver fileResolver)
+        private static (ImmutableDictionary<string, IModuleRegistry>, ImmutableDictionary<Type, IModuleRegistry>) Initialize(IModuleRegistryProvider registryProvider)
         {
             var mapByString = ImmutableDictionary.CreateBuilder<string, IModuleRegistry>();
             var mapByType = ImmutableDictionary.CreateBuilder<Type, IModuleRegistry>();
 
-            void AddRegistry(string scheme, Type moduleRefType, IModuleRegistry instance)
+            foreach(var registry in registryProvider.Registries)
             {
-                mapByString.Add(scheme, instance);
-                mapByType.Add(moduleRefType, instance);
+                mapByString.Add(registry.Scheme, registry);
+                mapByType.Add(registry.ModuleReferenceType, registry);
             }
-
-            AddRegistry(string.Empty, typeof(LocalModuleReference), new LocalModuleRegistry(fileResolver));
-            AddRegistry(OciArtifactModuleReference.Scheme, typeof(OciArtifactModuleReference), new OciModuleRegistry(fileResolver));
 
             return (mapByString.ToImmutable(), mapByType.ToImmutable());
         }

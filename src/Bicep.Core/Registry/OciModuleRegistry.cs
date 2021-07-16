@@ -23,6 +23,10 @@ namespace Bicep.Core.Registry
             this.orasClient = new OrasClient(GetArtifactCachePath());
         }
 
+        public string Scheme => "oci";
+
+        public Type ModuleReferenceType => typeof(OciArtifactModuleReference);
+
         public ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => OciArtifactModuleReference.TryParse(reference, out failureBuilder);
 
         public bool IsModuleRestoreRequired(ModuleReference reference)
