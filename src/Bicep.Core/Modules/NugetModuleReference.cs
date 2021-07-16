@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Modules
 {
+    /// <summary>
+    /// Represents a reference to a NuGet package.
+    /// </summary>
     public class NugetModuleReference : ModuleReference
     {
         public const string Scheme = "nuget";
@@ -22,8 +25,14 @@ namespace Bicep.Core.Modules
             this.Version = version;
         }
 
+        /// <summary>
+        /// Gets the package identifier.
+        /// </summary>
         public string PackageId { get; }
 
+        /// <summary>
+        /// Gets the package version.
+        /// </summary>
         public string Version { get; }
 
         public override bool Equals(object obj)

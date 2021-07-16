@@ -10,6 +10,9 @@ using System.Text;
 
 namespace Bicep.Core.Modules
 {
+    /// <summary>
+    /// Wraps the ORAS CLI tool to interact with OCI artifacts.
+    /// </summary>
     public class OrasClient
     {
         private readonly string artifactCachePath;

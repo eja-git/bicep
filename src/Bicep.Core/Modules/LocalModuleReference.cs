@@ -10,6 +10,9 @@ using System.Linq;
 
 namespace Bicep.Core.Modules
 {
+    /// <summary>
+    /// Represents a reference to a local module (by relative path).
+    /// </summary>
     public class LocalModuleReference : ModuleReference
     {
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
@@ -19,6 +22,9 @@ namespace Bicep.Core.Modules
             this.Path = path;
         }
 
+        /// <summary>
+        /// Gets the relative path to the module.
+        /// </summary>
         public string Path { get; }
 
         public override bool Equals(object obj)

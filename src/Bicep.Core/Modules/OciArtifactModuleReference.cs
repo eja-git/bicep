@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Modules
 {
+    /// <summary>
+    /// Represents a reference to an artifact in an OCI registry.
+    /// </summary>
     public class OciArtifactModuleReference : ModuleReference
     {
         public const string Scheme = "oci";
@@ -23,12 +26,24 @@ namespace Bicep.Core.Modules
             this.Tag = tag;
         }
 
+        /// <summary>
+        /// Gets the registry URI.
+        /// </summary>
         public string Registry { get; }
 
+        /// <summary>
+        /// Gets the repository name. The repository name is the path to an artifact in the registry without the tag.
+        /// </summary>
         public string Repository { get; }
 
+        /// <summary>
+        /// Gets the tag. 
+        /// </summary>
         public string Tag { get; }
 
+        /// <summary>
+        /// Gets the artifact ID.
+        /// </summary>
         public string ArtifactId => $"{this.Registry}{this.Repository}:{this.Tag}";
 
         public override string UnqualifiedReference => this.ArtifactId;
