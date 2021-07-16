@@ -12,14 +12,13 @@ namespace Bicep.Core.Modules
     /// </summary>
     public class OciArtifactModuleReference : ModuleReference
     {
-        public const string Scheme = "oci";
-
         // these exist to keep equals and hashcode implementations in sync
         private static readonly IEqualityComparer<string> RegistryComparer = StringComparer.OrdinalIgnoreCase;
         private static readonly IEqualityComparer<string> RepositoryComparer = StringComparer.Ordinal;
         private static readonly IEqualityComparer<string> TagComparer = StringComparer.Ordinal;
 
         public OciArtifactModuleReference(string registry, string repository, string tag)
+             : base("oci")
         {
             this.Registry = registry;
             this.Repository = repository;
@@ -47,8 +46,6 @@ namespace Bicep.Core.Modules
         public string ArtifactId => $"{this.Registry}{this.Repository}:{this.Tag}";
 
         public override string UnqualifiedReference => this.ArtifactId;
-
-        public override string FullyQualifiedReference => this.FormatFullyQualifiedReference(Scheme);
 
         public override bool Equals(object obj)
         {

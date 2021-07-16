@@ -19,11 +19,6 @@ namespace Bicep.Core.Registry
         string Scheme { get; }
 
         /// <summary>
-        /// Gets the type of the module references returned by TryParseModuleReference.
-        /// </summary>
-        Type ModuleReferenceType { get; }
-
-        /// <summary>
         /// Attempts to parse the specified unqualified reference or returns a failure builder.
         /// </summary>
         /// <param name="reference">The unqualified module reference</param>

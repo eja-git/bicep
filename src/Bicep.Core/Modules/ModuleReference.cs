@@ -8,20 +8,21 @@ namespace Bicep.Core.Modules
     /// </summary>
     public abstract class ModuleReference
     {
+        protected ModuleReference(string scheme)
+        {
+            this.Scheme = scheme;
+        }
+
+        public string Scheme { get; }
+
         /// <summary>
         /// Gets the fully qualified module reference, which includes the scheme.
         /// </summary>
-        public abstract string FullyQualifiedReference { get; }
+        public virtual string FullyQualifiedReference => $"{this.Scheme}:{this.UnqualifiedReference}";
 
         /// <summary>
         /// Gets the unqualified module reference, which does not include the scheme.
         /// </summary>
         public abstract string UnqualifiedReference { get; }
-
-        /// <summary>
-        /// Formats the fully qualified reference by adding the scheme as a prefix.
-        /// </summary>
-        /// <param name="scheme">The scheme</param>
-        protected string FormatFullyQualifiedReference(string scheme) => $"{scheme}:{this.UnqualifiedReference}";
     }
 }

@@ -15,15 +15,14 @@ namespace Bicep.Core.Registry
 {
     public class ModuleRegistryDispatcher : IModuleRegistryDispatcher
     {
-        private readonly ImmutableDictionary<string, IModuleRegistry> schemes;
-        private readonly ImmutableDictionary<Type, IModuleRegistry> referenceTypes;
+        private readonly ImmutableDictionary<string, IModuleRegistry> registries;
 
         private readonly ConditionalWeakTable<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> restoreStatuses;
 
         public ModuleRegistryDispatcher(IModuleRegistryProvider registryProvider)
         {
-            (this.schemes, this.referenceTypes) = Initialize(registryProvider);
-            this.AvailableSchemes = this.schemes.Keys.OrderBy(s => s).ToImmutableArray();
+            this.registries = registryProvider.Registries.ToImmutableDictionary(registry => registry.Scheme);
+            this.AvailableSchemes = this.registries.Keys.OrderBy(s => s).ToImmutableArray();
             this.restoreStatuses = new ConditionalWeakTable<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
         }
 
@@ -35,10 +34,9 @@ namespace Bicep.Core.Registry
         public bool IsModuleAvailable(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var reference = GetModuleReference(module);
-            Type refType = reference.GetType();
-            if (!this.referenceTypes.TryGetValue(refType, out var registry))
+            if (!this.registries.TryGetValue(reference.Scheme, out var registry))
             {
-                throw new NotImplementedException($"Unexpected module reference type '{refType.Name}'");
+                throw new NotImplementedException($"Unexpected module reference scheme '{reference.Scheme}'");
             }
 
             // have we already failed to restore this module?
@@ -72,7 +70,7 @@ namespace Bicep.Core.Registry
 
             var reference = GetModuleReference(module);
             Type refType = reference.GetType();
-            if (this.referenceTypes.TryGetValue(refType, out var registry))
+            if (this.registries.TryGetValue(reference.Scheme, out var registry))
             {
                 return registry.TryGetLocalModuleEntryPointPath(parentModuleUri, reference, out failureBuilder);
             }
@@ -95,13 +93,13 @@ namespace Bicep.Core.Registry
 
             var references = modules.Select(module => GetModuleReference(module)).Distinct();
 
-            // split module refs by reference type
-            var referencesByRefType = references.ToLookup(@ref => @ref.GetType());
+            // split module refs by scheme
+            var referencesByScheme = references.ToLookup(@ref => @ref.Scheme);
 
             // send each set of refs to its own registry
-            foreach (var referenceType in this.referenceTypes.Keys.Where(refType => referencesByRefType.Contains(refType)))
+            foreach (var scheme in this.registries.Keys.Where(refType => referencesByScheme.Contains(refType)))
             {
-                var restoreStatuses = this.referenceTypes[referenceType].RestoreModules(referencesByRefType[referenceType]);
+                var restoreStatuses = this.registries[scheme].RestoreModules(referencesByScheme[scheme]);
 
                 // update restore status for each failed module restore
                 foreach(var (failedReference, failureBuilder) in restoreStatuses)
@@ -138,12 +136,12 @@ namespace Bicep.Core.Registry
             {
                 case 1:
                     // local path reference
-                    return schemes[string.Empty].TryParseModuleReference(parts[0], out failureBuilder);
+                    return registries[string.Empty].TryParseModuleReference(parts[0], out failureBuilder);
 
                 case 2:
                     var scheme = parts[0];
 
-                    if (!string.IsNullOrEmpty(scheme) && schemes.TryGetValue(scheme, out var registry))
+                    if (!string.IsNullOrEmpty(scheme) && registries.TryGetValue(scheme, out var registry))
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
@@ -171,21 +169,6 @@ namespace Bicep.Core.Registry
         private void SetRestoreFailure(ModuleDeclarationSyntax module, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
         {
             this.restoreStatuses.AddOrUpdate(module, failureBuilder);
-        }
-
-        // TODO: Once we have some sort of dependency injection in the CLI, this could be simplified
-        private static (ImmutableDictionary<string, IModuleRegistry>, ImmutableDictionary<Type, IModuleRegistry>) Initialize(IModuleRegistryProvider registryProvider)
-        {
-            var mapByString = ImmutableDictionary.CreateBuilder<string, IModuleRegistry>();
-            var mapByType = ImmutableDictionary.CreateBuilder<Type, IModuleRegistry>();
-
-            foreach(var registry in registryProvider.Registries)
-            {
-                mapByString.Add(registry.Scheme, registry);
-                mapByType.Add(registry.ModuleReferenceType, registry);
-            }
-
-            return (mapByString.ToImmutable(), mapByType.ToImmutable());
         }
     }
 }

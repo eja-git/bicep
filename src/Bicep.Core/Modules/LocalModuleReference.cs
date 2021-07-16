@@ -18,6 +18,7 @@ namespace Bicep.Core.Modules
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
 
         private LocalModuleReference(string path)
+            : base(string.Empty)
         {
             this.Path = path;
         }
