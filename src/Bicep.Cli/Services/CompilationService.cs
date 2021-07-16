@@ -22,10 +22,10 @@ namespace Bicep.Cli.Services
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
 
-        public CompilationService(IDiagnosticLogger diagnosticLogger, InvocationContext invocationContext, IModuleRegistryProvider registryProvider) 
+        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleRegistryProvider registryProvider) 
         {
             this.diagnosticLogger = diagnosticLogger;
-            this.fileResolver = new FileResolver();
+            this.fileResolver = fileResolver;
             this.dispatcher = new ModuleRegistryDispatcher(registryProvider);
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
