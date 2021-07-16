@@ -130,6 +130,11 @@
         "title": "Open Source",
         "category": "bicep",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "bicep.build",
+        "title": "Build",
+        "category": "bicep"
       }
     ],
     "menus": {
@@ -149,6 +154,11 @@
       "explorer/context": [
         {
           "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep",
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.build",
           "when": "resourceLangId == bicep",
           "group": "navigation"
         }

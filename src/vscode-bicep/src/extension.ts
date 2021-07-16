@@ -9,6 +9,7 @@ import {
 import { launchLanguageServiceWithProgressReport } from "./language";
 import { BicepVisualizerViewManager } from "./visualizer";
 import {
+  BuildCommand,
   CommandManager,
   ShowSourceCommand,
   ShowVisualizerCommand,
@@ -61,6 +62,7 @@ export async function activate(
     );
 
     commandManager.registerCommands(
+      new BuildCommand(viewManager),
       new ShowVisualizerCommand(viewManager),
       new ShowVisualizerToSideCommand(viewManager),
       new ShowSourceCommand(viewManager)
