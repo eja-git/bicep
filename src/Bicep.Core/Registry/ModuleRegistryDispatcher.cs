@@ -17,6 +17,10 @@ namespace Bicep.Core.Registry
     {
         private readonly ImmutableDictionary<string, IModuleRegistry> registries;
 
+        /*
+         * This data structure behaves like a dictionary but creates a weak reference to the keys stored within.
+         * When the keys stop being reachable and are cleaned up by the GC, they will disappear from this table.
+         */ 
         private readonly ConditionalWeakTable<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> restoreStatuses;
 
         public ModuleRegistryDispatcher(IModuleRegistryProvider registryProvider)
@@ -115,7 +119,7 @@ namespace Bicep.Core.Registry
         }
 
         private ModuleReference GetModuleReference(ModuleDeclarationSyntax module) =>
-            TryGetModuleReference(module, out _) ?? throw new InvalidOperationException("The specified module reference is not valid. Ensure it is validated before calling.");
+            TryGetModuleReference(module, out _) ?? throw new InvalidOperationException($"The specified module is not valid. Call {nameof(ValidateModuleReference)}() first.");
 
         private ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {

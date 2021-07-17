@@ -5,6 +5,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.Registry
 {
@@ -12,7 +13,7 @@ namespace Bicep.Core.Registry
     {
         IEnumerable<string> AvailableSchemes { get; }
 
-        bool ValidateModuleReference(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        bool ValidateModuleReference(ModuleDeclarationSyntax module, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         bool IsModuleAvailable(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 
