@@ -30,7 +30,7 @@ namespace Bicep.Core.Registry
             this.restoreStatuses = new ConditionalWeakTable<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
         }
 
-        public IEnumerable<string> AvailableSchemes { get; }
+        public ImmutableArray<string> AvailableSchemes { get; }
 
         public bool ValidateModuleReference(ModuleDeclarationSyntax module, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             this.TryGetModuleReference(module, out failureBuilder) is not null;
@@ -140,7 +140,13 @@ namespace Bicep.Core.Registry
             {
                 case 1:
                     // local path reference
-                    return registries[string.Empty].TryParseModuleReference(parts[0], out failureBuilder);
+                    if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
+                    {
+                        return localRegistry.TryParseModuleReference(parts[0], out failureBuilder);
+                    }
+
+                    failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes);
+                    return null;
 
                 case 2:
                     var scheme = parts[0];

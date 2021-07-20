@@ -43,6 +43,14 @@ namespace Bicep.Core.UnitTests.Registry
                 failureBuilder!.Should().HaveCodeAndSeverity("BCP189", DiagnosticLevel.Error);
                 failureBuilder!.Should().HaveMessage("Module references are not supported in this context.");
             }
+
+            var localModule = CreateModule("test.bicep");
+            dispatcher.ValidateModuleReference(localModule, out var localModuleFailureBuilder).Should().BeFalse();
+            using (new AssertionScope())
+            {
+                localModuleFailureBuilder!.Should().HaveCodeAndSeverity("BCP189", DiagnosticLevel.Error);
+                localModuleFailureBuilder!.Should().HaveMessage("Module references are not supported in this context.");
+            }
         }
 
         [TestMethod]

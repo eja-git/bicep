@@ -5,13 +5,14 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.Registry
 {
     public interface IModuleRegistryDispatcher
     {
-        IEnumerable<string> AvailableSchemes { get; }
+        ImmutableArray<string> AvailableSchemes { get; }
 
         bool ValidateModuleReference(ModuleDeclarationSyntax module, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 

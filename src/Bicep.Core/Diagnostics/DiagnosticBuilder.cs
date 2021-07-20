@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
+using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -1109,12 +1111,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
 
-            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, IEnumerable<string> allowedSchemes) => new(
+            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes) => new(
                 TextSpan,
                 "BCP189",
-                allowedSchemes.Any()
-                    ? $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a local path to a Bicep file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}"
-                    : "Module references are not supported in this context.");
+                (allowedSchemes.Any(), allowedSchemes.Contains(ModuleReferenceSchemes.Local, StringComparer.Ordinal)) switch
+                {
+                    (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a local path to a Bicep file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
+                    (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
+                    (false, _) => "Module references are not supported in this context."
+                });
 
             public ErrorDiagnostic InvalidNuGetPackageReference(string badRef) => new(
                 TextSpan,

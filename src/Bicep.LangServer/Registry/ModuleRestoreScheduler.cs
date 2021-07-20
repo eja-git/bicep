@@ -5,6 +5,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Registry
 {
-    public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler
+    public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IDisposable
     {
         private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleDeclarationSyntax> References);
 
@@ -55,6 +56,17 @@ namespace Bicep.LanguageServer.Registry
         public void Start()
         {
             this.consumerTask = Task.Factory.StartNew(this.ProcessQueueItems, this.cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
+
+        public void Dispose()
+        {
+            // this is a sealed class - no need for full IDisposable implementation
+            if(this.consumerTask is not null)
+            {
+                this.cancellationTokenSource.Cancel();
+                this.consumerTask.Dispose();
+                this.consumerTask = null;
+            }
         }
 
         private void ProcessQueueItems()
