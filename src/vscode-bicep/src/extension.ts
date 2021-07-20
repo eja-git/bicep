@@ -64,7 +64,7 @@ export async function activate(
     );
 
     commandManager.registerCommands(
-      new BuildCommand(languageClient, outputChannel),
+      new BuildCommand(languageClient),
       new ShowVisualizerCommand(viewManager),
       new ShowVisualizerToSideCommand(viewManager),
       new ShowSourceCommand(viewManager)
